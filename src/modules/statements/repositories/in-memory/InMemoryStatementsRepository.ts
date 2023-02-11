@@ -1,6 +1,5 @@
 import { Statement } from "../../entities/Statement";
 import { ICreateStatementDTO } from "../../useCases/createStatement/ICreateStatementDTO";
-import { IGetBalanceDTO } from "../../useCases/getBalance/IGetBalanceDTO";
 import { IGetStatementOperationDTO } from "../../useCases/getStatementOperation/IGetStatementOperationDTO";
 import { IStatementsRepository } from "../IStatementsRepository";
 
@@ -24,10 +23,8 @@ export class InMemoryStatementsRepository implements IStatementsRepository {
     ));
   }
 
-  async getUserBalance({ user_id, with_statement = false }: IGetBalanceDTO):
-    Promise<
-      { balance: number } | { balance: number, statement: Statement[] }
-    >
+  async getUserBalance(user_id: string):
+    Promise<{ balance: number }>
   {
     const statement = this.statements.filter(operation => operation.user_id === user_id);
 
@@ -39,13 +36,13 @@ export class InMemoryStatementsRepository implements IStatementsRepository {
       }
     }, 0)
 
-    if (with_statement) {
-      return {
-        statement,
-        balance
-      }
-    }
-
     return { balance }
   }
+
+  async getUserStatementsOperations(user_id: string): Promise<Statement[]> {
+    return this.statements.filter(statement => 
+      statement.user_id === user_id 
+      && (statement.type === "deposit" || statement.type === "withdraw"))
+  }
+
 }

@@ -2,7 +2,6 @@ import { getRepository, Repository } from "typeorm";
 
 import { Statement } from "../entities/Statement";
 import { ICreateStatementDTO } from "../useCases/createStatement/ICreateStatementDTO";
-import { IGetBalanceDTO } from "../useCases/getBalance/IGetBalanceDTO";
 import { IGetStatementOperationDTO } from "../useCases/getStatementOperation/IGetStatementOperationDTO";
 import { IStatementsRepository } from "./IStatementsRepository";
 
@@ -35,10 +34,8 @@ export class StatementsRepository implements IStatementsRepository {
     });
   }
 
-  async getUserBalance({ user_id, with_statement = false }: IGetBalanceDTO):
-    Promise<
-      { balance: number } | { balance: number, statement: Statement[] }
-    >
+  async getUserBalance(user_id: string):
+    Promise<{ balance: number }>
   {
     const statement = await this.repository.find({
       where: { user_id }
@@ -52,13 +49,11 @@ export class StatementsRepository implements IStatementsRepository {
       }
     }, 0)
 
-    if (with_statement) {
-      return {
-        statement,
-        balance
-      }
-    }
-
     return { balance }
   }
+
+  async getUserStatementsOperations(user_id: string): Promise<Statement[]> {
+    return this.repository.find({where: {user_id, type: "deposit" || "withdraw"}})
+  }
+
 }

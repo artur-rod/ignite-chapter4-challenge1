@@ -1,13 +1,13 @@
 import {
   Column,
   CreateDateColumn,
-  Entity,
-  OneToMany,
+  Entity, OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 import { Statement } from '../../statements/entities/Statement';
+import { Transfer } from '../../transfers/entities/Transfer';
 
 @Entity('users')
 export class User {
@@ -25,6 +25,9 @@ export class User {
 
   @OneToMany(() => Statement, statement => statement.user)
   statement: Statement[];
+
+  @OneToMany(() => Transfer, transfer => transfer.user)
+  transfers: Transfer[];
 
   @CreateDateColumn()
   created_at: Date;
